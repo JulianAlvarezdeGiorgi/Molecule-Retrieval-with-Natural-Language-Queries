@@ -80,7 +80,6 @@ with open(source_data+"val.tsv", 'r') as f_source :
         for l in f_source.readlines() :
             cid,text=l.split('\t')
             f_target.write(cid+"0\t"+text)
-            f_target.write(cid+"1\t"+text)
 
 print("\nCopy raw files")
 for f in os.listdir(source_data+"raw/") :
