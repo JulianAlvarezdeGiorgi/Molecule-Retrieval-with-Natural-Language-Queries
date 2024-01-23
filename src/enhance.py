@@ -53,12 +53,16 @@ def subgraph(lines,p=0.8) :
     #construct list of node to keep
     v=random.randint(0,nb_nodes-1)
     keep={v}
-    neigh=adj[v].copy()
-    while len(keep)<p*nb_nodes :
-        v=random.choice(list(neigh))
-        if v not in keep :
-            keep.add(v)
-            neigh=neigh.union(adj[v])
+    candidates=adj[v] - {v}
+    for k in range(int(p*nb_nodes)-1) :
+        if len(candidates)!=0 : 
+            v=random.choice(list(candidates))
+        else : #happens if the molecule is not connex
+            v=random.choice([x for x in range(nb_nodes) if x not in keep])
+        keep.add(v)
+
+        candidates.discard(v)
+        candidates=candidates | (adj[v]-keep)
     keep=list(keep)
     keep.sort()
     return keep
@@ -126,7 +130,7 @@ with open(source_data+"val.tsv", 'r') as f_source :
         for l in f_source.readlines() :
             cid,text=l.split('\t')
             f_target.write(cid+"0\t"+text)
-
+            
 print("Copy raw files")
 for f in os.listdir(source_data+"raw/") :
     cid=f.split('.')[0]
