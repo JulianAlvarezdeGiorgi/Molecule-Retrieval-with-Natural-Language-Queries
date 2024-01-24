@@ -31,10 +31,19 @@ class GraphTextDataset(Dataset):
     def processed_file_names(self):
         return ['data_{}.pt'.format(cid) for cid in self.cids]
     
+    #@property
+    #def raw_dir(self) -> str:
+    #   return osp.join(self.root, 'raw')
+    
     @property
     def raw_dir(self) -> str:
-        return osp.join(self.root, 'raw')
-
+        if self.split == 'train' or self.split == 'val':
+            return osp.join(self.root, 'raw/original')
+        elif self.split == 'train_drop':
+            return osp.join(self.root, 'raw/drop')
+        elif self.split == 'train_subgraph':
+            return osp.join(self.root, 'raw/subgraph')
+    
     @property
     def processed_dir(self) -> str:
         return osp.join(self.root, 'processed/', self.split)
