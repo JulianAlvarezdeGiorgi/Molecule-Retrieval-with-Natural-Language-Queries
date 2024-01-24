@@ -9,13 +9,13 @@ there are three times more element in the train set
 
 The validation set and test set remains untouched
 """
-
+#white_list=None
 import os
 import shutil
 import random
 
 source_data = "/home/admpc/Documents/MVA/S1/altegrad/projet/Public/data/"
-target_data = "/home/admpc/Documents/MVA/S1/altegrad/projet/Public/data_enhanced/"
+target_data = "/home/admpc/Documents/MVA/S1/altegrad/projet/Public/data_enhanced2/"
 
 def node_drop(lines,p=0.8) :
     """
@@ -55,7 +55,7 @@ def subgraph(lines,p=0.8) :
     keep={v}
     candidates=adj[v] - {v}
     for k in range(int(p*nb_nodes)-1) :
-        if len(candidates)!=0 : 
+        if len(candidates)!=0 :
             v=random.choice(list(candidates))
         else : #happens if the molecule is not connex
             v=random.choice([x for x in range(nb_nodes) if x not in keep])
@@ -115,26 +115,26 @@ shutil.copyfile(source_data+"token_embedding_dict.npy", target_data+"token_embed
 with open(source_data+"test_cids.txt", 'r') as f_source :
     with open(target_data+"test_cids.txt", 'w+') as f_target :
         for l in f_source.readlines() :
-            f_target.write(l[:-1]+"0\n")
+            cid=l[:-1]
+            f_target.write(cid+"0\n")
 
 with open(source_data+"train.tsv", 'r') as f_source :
     with open(target_data+"train.tsv", 'w+') as f_target :
         for l in f_source.readlines() :
             cid,text=l.split('\t')
-            f_target.write(cid+"0\t"+text)
-            f_target.write(cid+"1\t"+text)
-            f_target.write(cid+"2\t"+text)
+            f_target.write(cid+"\t"+text)
 
 with open(source_data+"val.tsv", 'r') as f_source :
     with open(target_data+"val.tsv", 'w+') as f_target :
         for l in f_source.readlines() :
             cid,text=l.split('\t')
-            f_target.write(cid+"0\t"+text)
-            
+            f_target.write(cid+"\t"+text)
+
 print("Copy raw files")
 for f in os.listdir(source_data+"raw/") :
-    cid=f.split('.')[0]
-    shutil.copyfile(source_data+"raw/"+f, target_data+"raw/"+cid+"0.graph")
+    if f!= ".DS_Store" :
+        cid=f.split('.')[0]
+        shutil.copyfile(source_data+"raw/"+f, target_data+"raw/"+cid+"0.graph")
 
 print("Node dropping")
 for f in os.listdir(source_data+"raw/") :
@@ -143,8 +143,12 @@ for f in os.listdir(source_data+"raw/") :
         with open(source_data+"raw/"+f, 'r') as f_source :
             lines=f_source.readlines()
         keep=node_drop(lines)
-        with open(target_data+"raw/"+cid+"1.graph", 'w+') as f_target :
-            write_keep(lines,keep,f_target)
+        if len(keep)==0 :
+            shutil.copyfile(source_data+"raw/"+f,
+                            target_data+"raw/"+cid+"1.graph")
+        else :
+            with open(target_data+"raw/"+cid+"1.graph", 'w+') as f_target :
+                write_keep(lines,keep,f_target)
 
 print("Sub graph")
 for f in os.listdir(source_data+"raw/") :
@@ -153,5 +157,9 @@ for f in os.listdir(source_data+"raw/") :
         with open(source_data+"raw/"+f, 'r') as f_source :
             lines=f_source.readlines()
         keep=subgraph(lines)
-        with open(target_data+"raw/"+cid+"2.graph", 'w+') as f_target :
-            write_keep(lines,keep,f_target)
+        if len(keep)==0 :
+            shutil.copyfile(source_data+"raw/"+f,
+                            target_data+"raw/"+cid+"2.graph")
+        else :
+            with open(target_data+"raw/"+cid+"2.graph", 'w+') as f_target :
+                write_keep(lines,keep,f_target)
