@@ -47,7 +47,7 @@ datas=[]
 for cid in val_dataset.cids :
     data=val_dataset.get_cid(cid)
     data=Data(x=data.x, edge_index=data.edge_index,
-              input_ids=data.input_ids, attention_mask=data.input_ids)
+              input_ids=data.input_ids, attention_mask=data.attention_mask)
     datas.append(data)
 val_loader = DataLoader(datas, batch_size=batch_size, shuffle=True)
 
@@ -61,7 +61,7 @@ for cid in train_dataset.cids :
     graph0_dataset.append(Data(x=data.x, edge_index=data.edge_index))
     graph1_dataset.append(Data(x=data.x1, edge_index=data.edge_index1))
     graph2_dataset.append(Data(x=data.x2, edge_index=data.edge_index2))
-    text_dataset.append(Data(input_ids=data.input_ids, attention_mask=data.input_ids))
+    text_dataset.append(Data(input_ids=data.input_ids, attention_mask=data.attention_mask))
    
     
 train_text_loader = DataLoader(text_dataset, batch_size=batch_size, shuffle=False)
