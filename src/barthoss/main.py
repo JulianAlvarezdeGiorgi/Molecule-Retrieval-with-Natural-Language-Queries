@@ -63,11 +63,6 @@ for cid in train_dataset.cids :
     graph2_dataset.append(Data(x=data.x2, edge_index=data.edge_index2))
     text_dataset.append(Data(input_ids=data.input_ids, attention_mask=data.attention_mask))
    
-    
-train_text_loader = DataLoader(text_dataset, batch_size=batch_size, shuffle=False)
-train_graph0_loader = DataLoader(graph0_dataset, batch_size=batch_size, shuffle=False)
-train_graph1_loader = DataLoader(graph1_dataset, batch_size=batch_size, shuffle=False)
-train_graph2_loader = DataLoader(graph2_dataset, batch_size=batch_size, shuffle=False)
 
 if download_models :
     model = Model(model_name=model_name, num_node_features=300, nout=768, nhid=300, graph_hidden_channels=300)
@@ -94,6 +89,14 @@ for i in range(nb_epochs):
     with open(root+"log",'a') as f :
         f.write(f"EPOCH{i+1}:{(time.time()-t0)//60}min\n")
     model.train()
+    #reorder dataset
+    order=list(range(N_train))
+    random.shuffle(order)
+    train_text_loader = DataLoader([text_dataset[order[x]] for x in range(N_train)], batch_size=batch_size, shuffle=False)
+    train_graph0_loader = DataLoader([graph0_dataset[order[x]] for x in range(N_train)], batch_size=batch_size, shuffle=False)
+    train_graph1_loader = DataLoader([graph1_dataset[order[x]] for x in range(N_train)], batch_size=batch_size, shuffle=False)
+    train_graph2_loader = DataLoader([graph2_dataset[order[x]] for x in range(N_train)], batch_size=batch_size, shuffle=False)
+  
     for text_batch, graph0_batch, graph1_batch, graph2_batch in\
     zip(train_text_loader,train_graph0_loader,train_graph1_loader,train_graph2_loader):
         #separate text features
